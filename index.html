@@ -148,6 +148,47 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
 .dir:active{transform:scale(.92)}
 .dir.on{background:var(--red);color:#fff;border-color:var(--red)}
 
+/* Иконочные тулбары (align / case) */
+.tbar{display:flex;gap:4px;background:var(--card-2);border:1px solid var(--border);border-radius:10px;padding:3px}
+.tb{
+  flex:1;height:38px;border:none;background:transparent;border-radius:8px;
+  color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font:600 13px/1 var(--ui);letter-spacing:-.2px;
+  transition:background .2s,color .2s,transform .15s var(--ease-spring);
+}
+.tb:active{transform:scale(.94)}
+.tb.on{background:#fff;color:#000}
+.tb svg{width:18px;height:18px;display:block}
+.tb .cs-a{font-size:14px}
+.tb .cs-a sup{font-size:9px;vertical-align:super;margin-left:-2px}
+
+/* Кнопка выбора шрифта */
+.font-btn{
+  width:100%;background:var(--card-2);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;color:var(--fg);cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  transition:background .2s,transform .15s var(--ease-spring);
+}
+.font-btn:active{transform:scale(.98)}
+.fb-l{display:flex;flex-direction:column;gap:2px;align-items:flex-start;min-width:0;flex:1}
+.fb-l .fb-k{font:500 10px var(--ui);text-transform:uppercase;letter-spacing:.8px;color:var(--muted)}
+.fb-l .fb-v{font:600 16px var(--ui);color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.fb-ic{color:var(--muted);flex-shrink:0}
+
+/* Модалка выбора шрифта */
+.fsheet-p{padding:18px;display:flex;flex-direction:column;gap:8px;width:min(400px,100%)}
+.fsheet-t{font:600 12px var(--ui);color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:4px 4px 8px}
+.fopt{
+  background:var(--card-2);border:1px solid var(--border);border-radius:12px;
+  padding:18px 16px;text-align:left;color:var(--fg);cursor:pointer;
+  font-size:22px;line-height:1.1;
+  transition:background .2s,border-color .2s,transform .15s var(--ease-spring);
+}
+.fopt:active{transform:scale(.98)}
+.fopt.on{border-color:#fff;background:var(--card)}
+.fsheet-x{margin-top:6px;background:transparent;border:1px solid var(--border);color:var(--muted);
+  padding:12px;border-radius:10px;font:500 13px/1 var(--ui);cursor:pointer}
+
 /* Раскрывающаяся секция */
 .collapse{overflow:hidden;max-height:0;opacity:0;transition:max-height .3s var(--ease-spring),opacity .2s,margin-top .3s}
 .collapse.on{max-height:600px;opacity:1;margin-top:4px}
@@ -215,17 +256,32 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
 
   <!-- Шрифт + размер -->
   <div class="card">
-    <div class="cg">
-      <div class="ct"><span>Шрифт</span><select id="s_font">
-        <option value="BenzinMedium" selected>Benzin Medium</option>
-        <option value="BenzinBold">Benzin Bold</option>
-        <option value="Caravan">Caravan</option>
-      </select></div>
-      <div class="ct"><span>Выравн.</span><select id="s_align">
-        <option value="left" selected>Слева</option>
-        <option value="center">Центр</option>
-        <option value="right">Справа</option>
-      </select></div>
+    <button class="font-btn" id="font_btn" type="button">
+      <span class="fb-l">
+        <span class="fb-k">Шрифт</span>
+        <span class="fb-v" id="fp_val" style="font-family:'BenzinMedium',sans-serif;font-weight:500">Benzin Medium</span>
+      </span>
+      <svg class="fb-ic" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+
+    <div class="lbl">Выравнивание</div>
+    <div class="tbar" id="align_bar">
+      <button type="button" class="tb on" data-align="left" title="Слева">
+        <svg viewBox="0 0 18 18" fill="none"><path d="M2 4h14M2 8h10M2 12h14M2 16h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+      <button type="button" class="tb" data-align="center" title="Центр">
+        <svg viewBox="0 0 18 18" fill="none"><path d="M2 4h14M4 8h10M2 12h14M5 16h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+      <button type="button" class="tb" data-align="right" title="Справа">
+        <svg viewBox="0 0 18 18" fill="none"><path d="M2 4h14M6 8h10M2 12h14M8 16h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <div class="lbl">Регистр</div>
+    <div class="tbar" id="case_bar">
+      <button type="button" class="tb on" data-case="auto" title="Авто"><span class="cs-a">Aa</span></button>
+      <button type="button" class="tb" data-case="upper" title="ВСЁ ЗАГЛАВНЫМИ">AA</button>
+      <button type="button" class="tb" data-case="lower" title="всё строчными">aa</button>
     </div>
 
     <div class="lbl">Цвет текста</div>
@@ -248,6 +304,17 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
 
   <div class="warn" id="w_warn"></div>
   <div class="ft">ТУКАЙФ 20—26 · v2</div>
+
+  <!-- Модалка выбора шрифта -->
+  <div class="ov" id="font_ov">
+    <div class="ov-p fsheet-p">
+      <div class="fsheet-t">Шрифт</div>
+      <button type="button" class="fopt on" data-font="BenzinMedium" style="font-family:'BenzinMedium',sans-serif;font-weight:500">Benzin Medium</button>
+      <button type="button" class="fopt" data-font="BenzinBold" style="font-family:'BenzinBold',sans-serif;font-weight:700">Benzin Bold</button>
+      <button type="button" class="fopt" data-font="Caravan" style="font-family:'Caravan',cursive;font-weight:400">Caravan</button>
+      <button type="button" class="fsheet-x" id="font_ov_x">Закрыть</button>
+    </div>
+  </div>
 
   <div class="ov" id="ov">
     <div class="ov-p">
@@ -280,7 +347,7 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     Caravan:{family:"'Caravan',cursive",weight:400,label:'Caravan'}
   };
 
-  var state={color:'#ffffff'};
+  var state={color:'#ffffff',font:'BenzinMedium',align:'left',caseMode:'auto'};
 
   var SCALE=5;
   var MIN_W=400, MIN_H=400;
@@ -306,11 +373,17 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     }
     return out;
   }
-  function applyAutoCap(el){
+  function applyCase(text){
+    if(state.caseMode==='upper')return text.toUpperCase();
+    if(state.caseMode==='lower')return text.toLowerCase();
+    return autoCap(text);
+  }
+  function mutateTextareaCase(){
+    var el=$('#t_text');
     var pos=el.selectionStart;
     var before=el.value;
-    var after=autoCap(before);
-    if(before!==after){el.value=after;el.selectionStart=el.selectionEnd=pos}
+    var after=applyCase(before);
+    if(before!==after){el.value=after;try{el.selectionStart=el.selectionEnd=pos}catch(e){}}
   }
 
   function lnW(ctx,ln,ls){
@@ -349,10 +422,10 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     var text=$('#t_text').value;
     if(!text.trim()){canvas.width=0;canvas.height=0;return false}
 
-    var fontKey=$('#s_font').value;
+    var fontKey=state.font;
     var font=FONTS[fontKey];
     var color=state.color;
-    var align=$('#s_align').value;
+    var align=state.align;
     var szRaw=parseInt($('#r_size').value);
     var ls=parseFloat($('#r_ls').value);
     var lh=parseFloat($('#r_lh').value);
@@ -428,13 +501,16 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
 
   function applyLive(){
     var t=$('#t_text');
-    var fontKey=$('#s_font').value;
-    var font=FONTS[fontKey];
+    var font=FONTS[state.font];
 
     $('#font_lbl').textContent=font.label;
+    var fpv=$('#fp_val');
+    fpv.textContent=font.label;
+    fpv.style.fontFamily=font.family;
+    fpv.style.fontWeight=font.weight;
     t.style.fontFamily=font.family;
     t.style.fontWeight=font.weight;
-    t.style.textAlign=$('#s_align').value;
+    t.style.textAlign=state.align;
     t.style.color=state.color;
     t.style.letterSpacing=$('#r_ls').value/100+'em';
     t.style.lineHeight=$('#r_lh').value/100;
@@ -489,9 +565,9 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     if(!tg)return false;
     var payload={
       text:$('#t_text').value,
-      font:$('#s_font').value,
+      font:state.font,
       color:state.color,
-      align:$('#s_align').value,
+      align:state.align,
       size:parseInt($('#r_size').value),
       ls:parseFloat($('#r_ls').value),
       lh:parseFloat($('#r_lh').value)
@@ -558,25 +634,62 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
 
   bindChips('#color_chips',null,function(c){state.color=c;update()});
 
-  var inputs='#t_text,#s_font,#s_align,#r_size,#r_ls,#r_lh';
+  $$('#align_bar .tb').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      $$('#align_bar .tb').forEach(function(b){b.classList.remove('on')});
+      btn.classList.add('on');
+      state.align=btn.dataset.align;
+      update();
+    });
+  });
+
+  $$('#case_bar .tb').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      $$('#case_bar .tb').forEach(function(b){b.classList.remove('on')});
+      btn.classList.add('on');
+      state.caseMode=btn.dataset.case;
+      mutateTextareaCase();
+      update();
+    });
+  });
+
+  function selectFont(key){
+    state.font=key;
+    $$('#font_ov .fopt').forEach(function(b){b.classList.toggle('on',b.dataset.font===key)});
+    update();
+  }
+  $('#font_btn').addEventListener('click',function(){$('#font_ov').classList.add('on')});
+  $('#font_ov_x').addEventListener('click',function(){$('#font_ov').classList.remove('on')});
+  $$('#font_ov .fopt').forEach(function(b){
+    b.addEventListener('click',function(){
+      selectFont(b.dataset.font);
+      $('#font_ov').classList.remove('on');
+    });
+  });
+
+  var inputs='#t_text,#r_size,#r_ls,#r_lh';
   inputs.split(',').forEach(function(s){
     $(s).addEventListener('input',update);
     $(s).addEventListener('change',update);
   });
 
-  $('#t_text').addEventListener('input',function(){applyAutoCap($('#t_text'))});
+  $('#t_text').addEventListener('input',function(){mutateTextareaCase()});
   $('#dl').addEventListener('click',download);
 
   $('#btn_reset').addEventListener('click',function(){
     $('#t_text').value='';
-    $('#s_font').value='BenzinMedium';
-    $('#s_align').value='left';
     $('#r_size').value='80';
     $('#r_ls').value='0';
     $('#r_lh').value='110';
     state.color='#ffffff';
+    state.font='BenzinMedium';
+    state.align='left';
+    state.caseMode='auto';
     $$('#color_chips .chip').forEach(function(c){c.classList.remove('on')});
     $('#color_chips .chip[data-c="#ffffff"]').classList.add('on');
+    $$('#align_bar .tb').forEach(function(b){b.classList.toggle('on',b.dataset.align==='left')});
+    $$('#case_bar .tb').forEach(function(b){b.classList.toggle('on',b.dataset.case==='auto')});
+    $$('#font_ov .fopt').forEach(function(b){b.classList.toggle('on',b.dataset.font==='BenzinMedium')});
     update();
   });
 
@@ -595,7 +708,7 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
   });
   $('#ib_x').addEventListener('click',function(){$('#ib').classList.remove('on')});
   if(isIOS()&&isSafari()&&!isStandalone())$('#ios_h').classList.add('on');
-  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js?v=6').catch(function(){});
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js?v=7').catch(function(){});
 })();
 </script>
 </body>
