@@ -243,47 +243,6 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     <div class="sr"><input type="range" id="r_lh" min="60" max="160" step="5" value="110"><span class="sv" id="v_lh">110%</span></div>
   </div>
 
-  <!-- Эффекты -->
-  <div class="card">
-    <label class="tg">
-      <input type="checkbox" id="t_shadow">
-      <span class="tg-sw"></span>
-      <span class="tg-lbl">Тень</span>
-    </label>
-    <div class="collapse" id="c_shadow">
-      <div class="lbl" style="margin-top:8px">Направление</div>
-      <div class="dir-grid" id="dir_grid">
-        <button type="button" class="dir" data-dir="tl" title="Вверх-влево">↖&#xFE0E;</button>
-        <button type="button" class="dir" data-dir="t" title="Вверх">↑</button>
-        <button type="button" class="dir" data-dir="tr" title="Вверх-вправо">↗&#xFE0E;</button>
-        <button type="button" class="dir" data-dir="l" title="Влево">←</button>
-        <button type="button" class="dir" data-dir="c" title="По центру">●</button>
-        <button type="button" class="dir" data-dir="r" title="Вправо">→</button>
-        <button type="button" class="dir" data-dir="bl" title="Вниз-влево">↙&#xFE0E;</button>
-        <button type="button" class="dir on" data-dir="b" title="Вниз">↓</button>
-        <button type="button" class="dir" data-dir="br" title="Вниз-вправо">↘&#xFE0E;</button>
-      </div>
-      <div class="lbl" style="margin-top:8px">Насыщенность тени</div>
-      <div class="sr"><input type="range" id="r_shadow" min="10" max="100" step="5" value="45"><span class="sv" id="v_shadow">45%</span></div>
-    </div>
-
-    <label class="tg" style="margin-top:4px">
-      <input type="checkbox" id="t_stroke">
-      <span class="tg-sw"></span>
-      <span class="tg-lbl">Обводка</span>
-    </label>
-    <div class="collapse" id="c_stroke">
-      <div class="lbl" style="margin-top:8px">Цвет обводки</div>
-      <div class="chips" id="stroke_chips">
-        <div class="chip on" data-c="#1d1d1f" style="background:#1d1d1f;box-shadow:inset 0 0 0 2px rgba(255,255,255,.5)"></div>
-        <div class="chip" data-c="#ffffff" style="background:#fff;box-shadow:inset 0 0 0 1px var(--border)"></div>
-        <div class="chip" data-c="#CF2323" style="background:#CF2323"></div>
-      </div>
-      <div class="lbl" style="margin-top:8px">Толщина</div>
-      <div class="sr"><input type="range" id="r_stroke_w" min="1" max="20" step="1" value="4"><span class="sv" id="v_stroke_w">4px</span></div>
-    </div>
-  </div>
-
   <button class="btn off" id="dl" type="button">Скачать PNG</button>
   <button class="btn btn-reset" id="btn_reset" type="button">Сбросить всё</button>
 
@@ -321,17 +280,7 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     Caravan:{family:"'Caravan',cursive",weight:400,label:'Caravan'}
   };
 
-  var state={
-    color:'#ffffff',
-    strokeColor:'#1d1d1f',
-    shadowDir:'b'
-  };
-
-  var DIR_OFFSET={
-    tl:[-1,-1], t:[0,-1], tr:[1,-1],
-    l:[-1,0],   c:[0,0],  r:[1,0],
-    bl:[-1,1],  b:[0,1],  br:[1,1]
-  };
+  var state={color:'#ffffff'};
 
   var SCALE=5;
   var MIN_W=400, MIN_H=400;
@@ -375,17 +324,12 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     return base+(chars.length>1?(chars.length-1)*ls:0);
   }
 
-  function drawLn(ctx,ln,x,y,ls,strokeW){
+  function drawLn(ctx,ln,x,y,ls){
     if(!ln)return;
     var chars=Array.from(ln);
-    if(Math.abs(ls)<.5){
-      if(strokeW>0)ctx.strokeText(ln,x,y);
-      ctx.fillText(ln,x,y);
-      return;
-    }
+    if(Math.abs(ls)<.5){ctx.fillText(ln,x,y);return}
     var cx=x;
     for(var i=0;i<chars.length;i++){
-      if(strokeW>0)ctx.strokeText(chars[i],cx,y);
       ctx.fillText(chars[i],cx,y);
       cx+=ctx.measureText(chars[i]).width+ls;
     }
@@ -413,22 +357,13 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     var ls=parseFloat($('#r_ls').value);
     var lh=parseFloat($('#r_lh').value);
 
-    var shadowOn=$('#t_shadow').checked;
-    var shadowOpacity=parseInt($('#r_shadow').value)/100;
-    var strokeOn=$('#t_stroke').checked;
-    var strokeColor=state.strokeColor;
-    var strokeWRaw=parseInt($('#r_stroke_w').value);
-
     /* Предварительный замер в 1x — вычисляем максимально возможный scale */
     var probeCanvas=document.createElement('canvas');
     var probeCtx=probeCanvas.getContext('2d',{alpha:true});
     var baseM=measBlk(probeCtx,text,szRaw,font.weight,lh,ls,font.family);
-    var baseStrokeW=strokeOn?strokeWRaw:0;
-    var baseSh=shadowOn?Math.round(szRaw*0.04):0;
-    var basePad=Math.max(24,baseStrokeW*2,(baseSh+baseSh*3)*1.2);
+    var basePad=24;
     var baseW=basePad*2+Math.max(baseM.w,10);
     var baseH=basePad*2+baseM.h;
-    releaseCanvas(probeCanvas);
     var scByW=MAX_DIM/baseW;
     var scByH=MAX_DIM/baseH;
     var scByArea=Math.sqrt(MAX_PX/(baseW*baseH));
@@ -439,60 +374,33 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     for(var att=0;att<3;att++){
       var sc=dynScale*(att===0?1:att===1?0.8:0.5);
       var px=szRaw*sc;
-      var strokeW=strokeOn?strokeWRaw*sc:0;
-      var sh=shadowOn?Math.round(px*0.04):0;
-      var dir=DIR_OFFSET[state.shadowDir]||[0,1];
-      var shX=Math.round(sh*dir[0]);
-      var shY=Math.round(sh*dir[1]);
-      var shBlur=Math.round(sh*3);
-      var pad=Math.max(24*sc,strokeW*2,(sh+shBlur)*1.2);
+      var pad=24*sc;
 
-      var tmp=document.createElement('canvas');
-      var tCtx=tmp.getContext('2d',{alpha:true});
-      var m=measBlk(tCtx,text,px,font.weight,lh,ls,font.family);
+      var m=measBlk(probeCtx,text,px,font.weight,lh,ls,font.family);
       var cW=Math.max(m.w,10);
       var outW=Math.max(pad*2+cW,MIN_W);
       var outH=Math.max(pad*2+m.h,MIN_H);
 
-      if(outW>MAX_DIM||outH>MAX_DIM||outW*outH>MAX_PX){releaseCanvas(tmp);continue}
+      if(outW>MAX_DIM||outH>MAX_DIM||outW*outH>MAX_PX)continue;
 
-      tmp.width=Math.round(outW);tmp.height=Math.round(outH);
-      tCtx.clearRect(0,0,tmp.width,tmp.height);
-      tCtx.font=font.weight+' '+px+'px '+font.family;
-      tCtx.textBaseline='top';
-      tCtx.fillStyle=color;
-      if(strokeW>0){
-        tCtx.strokeStyle=strokeColor;
-        tCtx.lineWidth=strokeW;
-        tCtx.lineJoin='round';
-        tCtx.miterLimit=2;
-      }
+      canvas.width=Math.round(outW);canvas.height=Math.round(outH);
+      var ctx=canvas.getContext('2d',{alpha:true});
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.font=font.weight+' '+px+'px '+font.family;
+      ctx.textBaseline='top';
+      ctx.fillStyle=color;
       var cy=pad;
       for(var i=0;i<m.lines.length;i++){
-        var w=lnW(tCtx,m.lines[i],m.lsp);
+        var w=lnW(ctx,m.lines[i],m.lsp);
         var x=pad;
         if(align==='center')x=pad+(cW-w)/2;
         else if(align==='right')x=pad+cW-w;
-        drawLn(tCtx,m.lines[i],x,cy,m.lsp,strokeW);
+        drawLn(ctx,m.lines[i],x,cy,m.lsp);
         cy+=m.lhp;
       }
-
-      canvas.width=tmp.width;canvas.height=tmp.height;
-      var ctx=canvas.getContext('2d',{alpha:true});
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      if(shadowOn){
-        ctx.save();
-        ctx.shadowColor='rgba(0,0,0,'+shadowOpacity+')';
-        ctx.shadowBlur=shBlur;
-        ctx.shadowOffsetX=shX;
-        ctx.shadowOffsetY=shY;
-        ctx.drawImage(tmp,0,0);
-        ctx.restore();
-      }
-      ctx.drawImage(tmp,0,0);
-      releaseCanvas(tmp);
       ok=true;break;
     }
+    releaseCanvas(probeCanvas);
     return ok;
   }
 
@@ -535,11 +443,6 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     $('#v_ls').textContent=$('#r_ls').value+'%';
     $('#v_lh').textContent=$('#r_lh').value+'%';
     $('#v_size').textContent=$('#r_size').value;
-    $('#v_shadow').textContent=$('#r_shadow').value+'%';
-    $('#v_stroke_w').textContent=$('#r_stroke_w').value+'px';
-
-    $('#c_shadow').classList.toggle('on',$('#t_shadow').checked);
-    $('#c_stroke').classList.toggle('on',$('#t_stroke').checked);
   }
 
   var previewTimer=null;
@@ -591,17 +494,7 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
       align:$('#s_align').value,
       size:parseInt($('#r_size').value),
       ls:parseFloat($('#r_ls').value),
-      lh:parseFloat($('#r_lh').value),
-      shadow:{
-        on:$('#t_shadow').checked,
-        dir:state.shadowDir,
-        opacity:parseInt($('#r_shadow').value)/100
-      },
-      stroke:{
-        on:$('#t_stroke').checked,
-        color:state.strokeColor,
-        width:parseInt($('#r_stroke_w').value)
-      }
+      lh:parseFloat($('#r_lh').value)
     };
     try{tg.sendData(JSON.stringify(payload));return true}
     catch(e){showWarn('Ошибка отправки: '+e.message);return false}
@@ -664,18 +557,8 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
   }
 
   bindChips('#color_chips',null,function(c){state.color=c;update()});
-  bindChips('#stroke_chips',null,function(c){state.strokeColor=c;update()});
 
-  $$('#dir_grid .dir').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      $$('#dir_grid .dir').forEach(function(b){b.classList.remove('on')});
-      btn.classList.add('on');
-      state.shadowDir=btn.dataset.dir;
-      update();
-    });
-  });
-
-  var inputs='#t_text,#s_font,#s_align,#r_size,#r_ls,#r_lh,#t_shadow,#r_shadow,#t_stroke,#r_stroke_w';
+  var inputs='#t_text,#s_font,#s_align,#r_size,#r_ls,#r_lh';
   inputs.split(',').forEach(function(s){
     $(s).addEventListener('input',update);
     $(s).addEventListener('change',update);
@@ -691,19 +574,9 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     $('#r_size').value='80';
     $('#r_ls').value='0';
     $('#r_lh').value='110';
-    $('#t_shadow').checked=false;
-    $('#r_shadow').value='45';
-    $('#t_stroke').checked=false;
-    $('#r_stroke_w').value='4';
     state.color='#ffffff';
-    state.strokeColor='#1d1d1f';
-    state.shadowDir='b';
-    $$('#dir_grid .dir').forEach(function(b){b.classList.remove('on')});
-    $('#dir_grid .dir[data-dir="b"]').classList.add('on');
     $$('#color_chips .chip').forEach(function(c){c.classList.remove('on')});
     $('#color_chips .chip[data-c="#ffffff"]').classList.add('on');
-    $$('#stroke_chips .chip').forEach(function(c){c.classList.remove('on')});
-    $('#stroke_chips .chip[data-c="#1d1d1f"]').classList.add('on');
     update();
   });
 
@@ -722,7 +595,7 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
   });
   $('#ib_x').addEventListener('click',function(){$('#ib').classList.remove('on')});
   if(isIOS()&&isSafari()&&!isStandalone())$('#ios_h').classList.add('on');
-  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js?v=5').catch(function(){});
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js?v=6').catch(function(){});
 })();
 </script>
 </body>
