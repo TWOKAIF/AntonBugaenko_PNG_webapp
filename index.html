@@ -565,8 +565,8 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
       if(isIOS()){
         var blobUrl=URL.createObjectURL(blob);
         var ovN=$('#ov_n');
-        ovN.innerHTML='<img src="'+blobUrl+'" style="width:100%;border-radius:8px;background:repeating-conic-gradient(#808080 0% 25%,transparent 0% 50%) 50%/16px 16px;margin-bottom:12px;display:block">'
-          +'<div style="font-size:13px;text-align:center;line-height:1.45">Нажми и удерживай картинку<br><b>→ Добавить в Фото</b></div>';
+        ovN.innerHTML='<img src="'+blobUrl+'" style="width:100%;min-height:200px;object-fit:contain;border-radius:8px;background:repeating-conic-gradient(#808080 0% 25%,transparent 0% 50%) 50%/16px 16px;margin-bottom:12px;display:block;-webkit-touch-callout:default;-webkit-user-select:none;user-select:none;pointer-events:auto">'
+          +'<div style="font-size:13px;text-align:center;line-height:1.45;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;pointer-events:none">Нажми и удерживай картинку<br><b>→ Добавить в Фото</b></div>';
         $('#ov_c').style.display='none';
         $('#ov').classList.add('on');
         $('#ov_x').onclick=function(){$('#ov').classList.remove('on');$('#ov_c').style.display='';URL.revokeObjectURL(blobUrl)};
