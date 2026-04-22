@@ -550,9 +550,40 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     catch(e){showWarn('Ошибка отправки: '+e.message);return false}
   }
 
+  function buildSafariURL(){
+    var base=location.origin+location.pathname;
+    var p=new URLSearchParams();
+    p.set('text',$('#t_text').value);
+    p.set('font',state.font);
+    p.set('color',state.color);
+    p.set('align',state.align);
+    p.set('case',state.caseMode);
+    p.set('size',$('#r_size').value);
+    p.set('ls',$('#r_ls').value);
+    p.set('lh',$('#r_lh').value);
+    p.set('auto','1');
+    return base+'?'+p.toString();
+  }
+
+  function openInSafari(){
+    var tg=tgWebApp();
+    var url=buildSafariURL();
+    if(tg&&tg.openLink){
+      try{tg.openLink(url,{try_instant_view:false});return true}catch(e){}
+    }
+    try{window.open(url,'_blank');return true}catch(e){}
+    return false;
+  }
+
   function download(){
     if(!$('#t_text').value.trim())return;
     showWarn('');
+
+    if(isIOS()&&tgWebApp()){
+      openInSafari();
+      return;
+    }
+
     var go=function(){
       var tmp=document.createElement('canvas');
       var ok=render(tmp);
@@ -653,8 +684,46 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     update();
   });
 
+  function applyUrlParams(){
+    var q=new URLSearchParams(location.search);
+    if(!q.has('text'))return false;
+    var txt=q.get('text')||'';
+    $('#t_text').value=txt;
+    var f=q.get('font');if(f&&FONTS[f]){state.font=f;$('#s_font').value=f}
+    var c=q.get('color');if(c){
+      state.color=c;
+      var matched=false;
+      $$('#color_chips .chip').forEach(function(el){
+        if(el.dataset.c===c){el.classList.add('on');matched=true}
+        else{el.classList.remove('on')}
+      });
+    }
+    var a=q.get('align');if(a){
+      state.align=a;
+      $$('#align_bar .tb').forEach(function(b){b.classList.toggle('on',b.dataset.align===a)});
+    }
+    var cs=q.get('case');if(cs){
+      state.caseMode=cs;
+      $$('#case_bar .tb').forEach(function(b){b.classList.toggle('on',b.dataset.case===cs)});
+    }
+    var sz=q.get('size');if(sz)$('#r_size').value=sz;
+    var ls=q.get('ls');if(ls)$('#r_ls').value=ls;
+    var lh=q.get('lh');if(lh)$('#r_lh').value=lh;
+    return q.get('auto')==='1';
+  }
+
+  var autoTrigger=applyUrlParams();
   applyLive();
   update();
+  if(autoTrigger){
+    setTimeout(function(){
+      if(document.fonts&&document.fonts.ready){
+        document.fonts.ready.then(function(){setTimeout(download,200)});
+      }else{
+        setTimeout(download,400);
+      }
+    },100);
+  }
 
   if(isStandalone())return;
   var deferredPrompt=null;
