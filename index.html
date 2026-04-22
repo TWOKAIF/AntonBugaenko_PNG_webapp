@@ -481,10 +481,15 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
       var ctx=canvas.getContext('2d',{alpha:true});
       ctx.clearRect(0,0,canvas.width,canvas.height);
       if(shadowOn){
-        ctx.filter='drop-shadow('+shX+'px '+shY+'px '+shBlur+'px rgba(0,0,0,'+shadowOpacity+'))';
+        ctx.save();
+        ctx.shadowColor='rgba(0,0,0,'+shadowOpacity+')';
+        ctx.shadowBlur=shBlur;
+        ctx.shadowOffsetX=shX;
+        ctx.shadowOffsetY=shY;
+        ctx.drawImage(tmp,0,0);
+        ctx.restore();
       }
       ctx.drawImage(tmp,0,0);
-      ctx.filter='none';
       releaseCanvas(tmp);
       ok=true;break;
     }
@@ -566,7 +571,15 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     return new Blob([arr],{type:mime});
   }
 
-  function tgWebApp(){return window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.initData?window.Telegram.WebApp:null}
+  function tgWebApp(){
+    var w=window.Telegram&&window.Telegram.WebApp;
+    if(!w)return null;
+    var p=w.platform||'';
+    if(p&&p!=='unknown')return w;
+    if(w.initData||w.initDataUnsafe&&Object.keys(w.initDataUnsafe).length)return w;
+    if(/Telegram/i.test(navigator.userAgent))return w;
+    return null;
+  }
 
   function sendToBot(){
     var tg=tgWebApp();
@@ -709,7 +722,7 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
   });
   $('#ib_x').addEventListener('click',function(){$('#ib').classList.remove('on')});
   if(isIOS()&&isSafari()&&!isStandalone())$('#ios_h').classList.add('on');
-  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js?v=4').catch(function(){});
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js?v=5').catch(function(){});
 })();
 </script>
 </body>

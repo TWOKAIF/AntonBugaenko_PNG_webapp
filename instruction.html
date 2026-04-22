@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Инструкция — ТУКАЙФ-PNG #001 (v2)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --font:'Inter Tight',sans-serif;
+  --bg:#0a0a0a;
+  --card:#141416;
+  --border:rgba(234,234,242,.08);
+  --text:#EAEAF2;
+  --muted:rgba(234,234,242,.4);
+  --accent:#EAEAF2;
+  --red:#CF2323;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+.page{max-width:640px;margin:0 auto;padding:60px 32px 80px}
+
+.head{margin-bottom:48px}
+.badge{display:inline-block;font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);padding:6px 12px;margin-bottom:24px}
+h1{font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:1.0;margin-bottom:12px}
+.sub{font-size:14px;font-weight:400;color:var(--muted);letter-spacing:-.02em;line-height:1.5}
+
+.block{background:var(--card);border:1px solid var(--border);padding:28px;margin-bottom:16px}
+.block-n{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+.block p{font-size:14px;font-weight:400;line-height:1.6;letter-spacing:-.01em;color:rgba(234,234,242,.75)}
+.block p+p{margin-top:12px}
+.block a{color:var(--text);text-decoration:underline;text-underline-offset:3px}
+.block a:hover{color:#fff}
+.block strong{font-weight:600;color:var(--text)}
+.block code{font-family:'SF Mono',monospace;font-size:12px;background:rgba(234,234,242,.06);padding:2px 6px;border-radius:3px}
+
+.steps{counter-reset:step}
+.step{counter-increment:step;position:relative;padding-left:36px;margin-bottom:20px;font-size:14px;line-height:1.6;color:rgba(234,234,242,.75)}
+.step::before{content:counter(step);position:absolute;left:0;top:0;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--bg);background:var(--text);border-radius:50%}
+.step:last-child{margin-bottom:0}
+
+.ft{margin-top:48px;padding-top:24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.ft-logo{font-size:14px;font-weight:700;letter-spacing:-.02em}
+.ft-date{font-size:11px;color:var(--muted)}
+
+.link-btn{display:block;background:var(--text);color:var(--bg);font:600 14px/1 var(--font);letter-spacing:-.02em;text-align:center;padding:18px;text-decoration:none;margin:24px 0 0;transition:opacity .2s}
+.link-btn:hover{opacity:.85}
+
+.palette{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.sw{padding:14px 10px;border:1px solid var(--border);display:flex;flex-direction:column;gap:4px}
+.sw-c{width:100%;height:28px;margin-bottom:6px}
+.sw-n{font-size:11px;font-weight:600;color:var(--text)}
+.sw-h{font-family:'SF Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px}
+
+.tag{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--red);border:1px solid rgba(207,35,35,.3);padding:4px 10px;margin-bottom:16px;border-radius:999px}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="head">
+    <div class="badge">Проект #001 · Версия 2</div>
+    <h1>ТУКАЙФ-PNG<br>для Антона Бугаенко</h1>
+    <p class="sub">Персональный Telegram-бот для создания текстовых PNG с прозрачным фоном. Всё в одном месте — открыл чат, настроил, получил файл. Разработано студией ТУКАЙФ.</p>
+  </div>
+
+  <!-- Что нового -->
+  <div class="block">
+    <span class="tag">Новая версия</span>
+    <div class="block-n">Что изменилось</div>
+    <p>Раньше приложение работало как иконка на рабочем столе (PWA). Теперь всё переехало в <strong>Telegram-бот</strong>. Так удобнее: ничего не нужно устанавливать, все PNG приходят прямо в чат и сохраняются в галерею одним долгим нажатием.</p>
+    <p>Настроили и добавили: выбор направления тени (9 направлений), обводка текста, живое превью финального PNG с прозрачным фоном, единое поле ввода без разделения на заголовок/текст.</p>
+  </div>
+
+  <!-- О боте -->
+  <div class="block">
+    <div class="block-n">Как это работает</div>
+    <p>Бот — это маленькое приложение внутри Telegram. Открываешь чат, нажимаешь кнопку «Открыть приложение», внутри пишешь текст и настраиваешь шрифт/цвет/эффекты. Нажимаешь «Скачать PNG» — бот отправляет готовый файл в чат. Сохраняешь в галерею и используешь в Stories.</p>
+    <p>Внутри вшиты твои шрифты: <strong>Benzin Bold</strong>, <strong>Benzin Medium</strong> и <strong>Caravan</strong>. Вся работа под твою палитру.</p>
+  </div>
+
+  <!-- Палитра -->
+  <div class="block">
+    <div class="block-n">Твоя палитра</div>
+    <p>Три цвета. Одинаково работают и для текста, и для обводки.</p>
+    <div class="palette">
+      <div class="sw"><div class="sw-c" style="background:#CF2323"></div><span class="sw-n">Красный</span><span class="sw-h">#CF2323</span></div>
+      <div class="sw"><div class="sw-c" style="background:#ffffff;border:1px solid var(--border)"></div><span class="sw-n">Белый</span><span class="sw-h">#FFFFFF</span></div>
+      <div class="sw"><div class="sw-c" style="background:#1d1d1f"></div><span class="sw-n">Чёрный</span><span class="sw-h">#1D1D1F</span></div>
+    </div>
+  </div>
+
+  <!-- Ссылка на бота -->
+  <div class="block">
+    <div class="block-n">Бот в Telegram</div>
+    <p><a href="https://t.me/AntonBugaenko_bot" target="_blank"><strong>@AntonBugaenko_bot</strong></a></p>
+    <a class="link-btn" href="https://t.me/AntonBugaenko_bot" target="_blank">Открыть бота в Telegram</a>
+  </div>
+
+  <!-- Первый запуск -->
+  <div class="block">
+    <div class="block-n">Первый запуск</div>
+    <div class="steps">
+      <div class="step">Открой Telegram и найди бота <strong>@AntonBugaenko_bot</strong> (или нажми кнопку выше)</div>
+      <div class="step">Нажми <strong>Start</strong> (или команду <code>/start</code>)</div>
+      <div class="step">Появится кнопка <strong>«Открыть приложение»</strong> — нажми её</div>
+      <div class="step">Откроется окно с приложением прямо внутри Telegram — готово, можно пользоваться</div>
+    </div>
+  </div>
+
+  <!-- Как пользоваться -->
+  <div class="block">
+    <div class="block-n">Как пользоваться</div>
+    <div class="steps">
+      <div class="step">Введи <strong>текст</strong> в верхнее поле — можешь писать в несколько строк через Enter</div>
+      <div class="step">Выбери <strong>шрифт</strong>: Benzin Medium (обычный), Benzin Bold (жирный) или Caravan (рукописный)</div>
+      <div class="step">Выбери <strong>цвет текста</strong> — один из трёх кружков палитры</div>
+      <div class="step">Настрой <strong>выравнивание</strong>: слева, по центру или справа</div>
+      <div class="step">Подкрути <strong>размер</strong>, <strong>межбуквенное</strong> и <strong>межстрочное</strong> ползунками</div>
+      <div class="step">При желании включи <strong>«Тень»</strong> — выбери направление (9 вариантов: по центру, вверх, вниз, диагонали) и насыщенность</div>
+      <div class="step">Или включи <strong>«Обводку»</strong> — выбери её цвет и толщину</div>
+      <div class="step">Всё видно сразу в <strong>превью</strong> ниже поля ввода: показывает финальный PNG на шахматном фоне (шахматка = прозрачность)</div>
+      <div class="step">Нажми <strong>«Скачать PNG»</strong> — окно закроется, а через 1–2 секунды бот пришлёт готовый файл в чат</div>
+    </div>
+  </div>
+
+  <!-- Сохранение -->
+  <div class="block">
+    <div class="block-n">Как сохранить PNG в галерею</div>
+    <div class="steps">
+      <div class="step">Бот пришлёт файл <code>tukayf.png</code> в чат</div>
+      <div class="step">На <strong>iPhone</strong>: нажми и <strong>удерживай</strong> картинку → <strong>«Сохранить в галерею»</strong>. Прозрачность сохраняется</div>
+      <div class="step">На <strong>Android</strong>: открой картинку → три точки справа вверху → <strong>«Сохранить в галерею»</strong></div>
+      <div class="step">Файл появится в Фото/Галерее — готов к использованию в Stories и любых других приложениях</div>
+    </div>
+  </div>
+
+  <!-- Для Stories -->
+  <div class="block">
+    <div class="block-n">Как использовать в Instagram Stories</div>
+    <div class="steps">
+      <div class="step">Сохрани нужный PNG в галерею (см. выше)</div>
+      <div class="step">В Instagram открой создание Stories, выбери фоновое фото</div>
+      <div class="step">Нажми <strong>стикер</strong> (квадратик сверху) → прокрути вниз до галереи → выбери сохранённый PNG. Текст ляжет поверх фото без фона</div>
+      <div class="step">Можно комбинировать: сделать несколько PNG с разными шрифтами/цветами и накладывать слоями</div>
+    </div>
+  </div>
+
+  <!-- Советы -->
+  <div class="block">
+    <div class="block-n">Советы</div>
+    <p><strong>Качество.</strong> PNG рендерится в высоком разрешении (до 4096px по длинной стороне) — картинка остаётся чёткой даже после наложения в Stories.</p>
+    <p><strong>Короткие фразы</strong> на несколько строк смотрятся выразительнее, чем одна длинная строка. Используй Enter для переноса.</p>
+    <p><strong>Тень «По центру»</strong> даёт мягкое свечение вокруг текста — удобно, когда фон пёстрый и надо чтобы текст читался.</p>
+    <p><strong>Обводка</strong> полезна, если кладёшь белый текст на светлое фото — тонкая чёрная обводка вытащит буквы.</p>
+  </div>
+
+  <!-- Важно -->
+  <div class="block">
+    <div class="block-n">Важно</div>
+    <p><strong>Прозрачность PNG.</strong> Файл приходит именно как <em>документ</em>, а не как <em>фото</em> — это важно: так Telegram не сжимает и не убирает прозрачность. Сохраняется через долгое нажатие прямо из чата.</p>
+    <p><strong>Первый запуск.</strong> При первом открытии приложения шрифты подгружаются 1–2 секунды. Потом они в кеше — всё открывается мгновенно.</p>
+    <p><strong>Интернет.</strong> Для работы бота и отправки PNG нужен интернет. Само приложение настройки запоминает локально.</p>
+  </div>
+
+  <!-- Поддержка -->
+  <div class="block">
+    <div class="block-n">Поддержка</div>
+    <p><strong>Гарантия — 1 год.</strong> Если бот перестал отвечать, приложение не открывается или что-то сломалось — пиши, починим бесплатно.</p>
+    <p>Доработки по желанию (новые шрифты, цвета, функции, шаблоны) — оплачиваются отдельно по договорённости.</p>
+    <p>Связь: <a href="https://t.me/twokaif_ruslan" target="_blank"><strong>@twokaif_ruslan</strong></a></p>
+  </div>
+
+  <!-- Дисклеймер -->
+  <div class="block" style="border-color:rgba(234,234,242,.04)">
+    <div class="block-n">Условия использования</div>
+    <p style="font-size:12px;color:rgba(234,234,242,.35);line-height:1.55">Сервис ТУКАЙФ-PNG (Telegram-бот @AntonBugaenko_bot и Mini App) предоставляется в формате «как есть» (as is) для персонального использования заказчиком. Рендеринг изображений выполняется на стороне сервера (Python + Pillow), передача данных — через протоколы Telegram Bot API и Telegram Web Apps. ИП Тукаев Руслан Геннадиевич не несёт ответственности за результаты использования сгенерированных изображений, их соответствие требованиям третьих платформ (Instagram, и др.), а также за корректность отображения на устройствах, не поддерживающих современные веб-стандарты. Хостинг бота и Mini App осуществляется на платформах Render Inc. и GitHub Inc. — доступность сервиса зависит от стабильности работы данных платформ и инфраструктуры Telegram Messenger LLP. Техническая поддержка оказывается по усмотрению разработчика и не является гарантированным обязательством. Передача сервиса третьим лицам, а также использование вшитых шрифтов вне данного сервиса не допускается без согласования с правообладателями шрифтов. Instagram принадлежит компании Meta Platforms Inc., признанной экстремистской организацией на территории Российской Федерации (решение Тверского районного суда г. Москвы от 21.03.2022). Разработчик не побуждает к использованию запрещённых сервисов и не несёт ответственности за выбор платформ, на которых заказчик размещает сгенерированный контент.</p>
+  </div>
+
+  <!-- Акцепт -->
+  <div class="block" style="border-color:rgba(234,234,242,.08);margin-top:32px">
+    <div class="block-n">Акцепт условий</div>
+    <p style="font-size:13px;line-height:1.6;color:rgba(234,234,242,.6)">Получая данную инструкцию и доступ к сервису ТУКАЙФ-PNG, ты подтверждаешь, что ознакомился с условиями использования, изложенными выше, и принимаешь их в полном объёме. Факт получения инструкции и/или использования сервиса является акцептом оферты ИП Тукаева Руслана Геннадиевича (ОГРНИП 322344300064471) в соответствии со ст. 438 ГК РФ.</p>
+  </div>
+
+  <div class="ft">
+    <span class="ft-logo">ТУКАЙФ</span>
+    <span class="ft-date">Апрель 2026 · v2</span>
+  </div>
+
+</div>
+</body>
+</html>
