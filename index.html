@@ -668,7 +668,7 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
   });
   $('#ib_x').addEventListener('click',function(){$('#ib').classList.remove('on')});
   if(isIOS()&&isSafari()&&!isStandalone())$('#ios_h').classList.add('on');
-  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js?v=9').catch(function(){});
+  if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()})});if('caches' in window)caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k)})})}
 })();
 </script>
 </body>
