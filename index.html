@@ -506,7 +506,6 @@ textarea::placeholder{color:rgba(255,255,255,.15)}
   }
 
   function download(renderFn,filename){
-    if(isIOS()&&isTG()){tgOv();return}
     showWarn('');
     var go=function(){
       var tmp=document.createElement('canvas');
