@@ -495,11 +495,57 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     $('#v_size').textContent=$('#r_size').value;
   }
 
+  var STORAGE_KEY='bugaenko_png_draft';
+  function saveDraft(){
+    try{
+      localStorage.setItem(STORAGE_KEY,JSON.stringify({
+        text:$('#t_text').value,
+        font:state.font,
+        color:state.color,
+        align:state.align,
+        caseMode:state.caseMode,
+        size:$('#r_size').value,
+        ls:$('#r_ls').value,
+        lh:$('#r_lh').value
+      }));
+    }catch(e){}
+  }
+  function clearDraft(){try{localStorage.removeItem(STORAGE_KEY)}catch(e){}}
+  function loadDraft(){
+    try{
+      var raw=localStorage.getItem(STORAGE_KEY);
+      if(!raw)return false;
+      var d=JSON.parse(raw);
+      if(!d||typeof d!=='object')return false;
+      if(typeof d.text==='string')$('#t_text').value=d.text;
+      if(d.font&&FONTS[d.font]){state.font=d.font;$('#s_font').value=d.font}
+      if(d.color){
+        state.color=d.color;
+        $$('#color_chips .chip').forEach(function(el){
+          el.classList.toggle('on',el.dataset.c===d.color);
+        });
+      }
+      if(d.align){
+        state.align=d.align;
+        $$('#align_bar .tb').forEach(function(b){b.classList.toggle('on',b.dataset.align===d.align)});
+      }
+      if(d.caseMode){
+        state.caseMode=d.caseMode;
+        $$('#case_bar .tb').forEach(function(b){b.classList.toggle('on',b.dataset.case===d.caseMode)});
+      }
+      if(d.size)$('#r_size').value=d.size;
+      if(d.ls!=null)$('#r_ls').value=d.ls;
+      if(d.lh!=null)$('#r_lh').value=d.lh;
+      return true;
+    }catch(e){return false}
+  }
+
   var previewTimer=null;
   function update(){
     autoH($('#t_text'));
     $('#dl').classList.toggle('off',!$('#t_text').value.trim());
     applyLive();
+    saveDraft();
     clearTimeout(previewTimer);
     previewTimer=setTimeout(updatePreview,120);
   }
@@ -671,6 +717,7 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     $$('#align_bar .tb').forEach(function(b){b.classList.toggle('on',b.dataset.align==='left')});
     $$('#case_bar .tb').forEach(function(b){b.classList.toggle('on',b.dataset.case==='auto')});
     $('#s_font').value='BenzinMedium';
+    clearDraft();
     update();
   });
 
@@ -702,7 +749,9 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     return q.get('auto')==='1';
   }
 
+  var hasUrlParams=new URLSearchParams(location.search).has('text');
   var autoTrigger=applyUrlParams();
+  if(!hasUrlParams)loadDraft();
   applyLive();
   update();
   if(autoTrigger){
