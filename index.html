@@ -292,7 +292,7 @@ textarea{display:none}
   <button class="btn btn-reset" id="btn_reset" type="button">Сбросить всё</button>
 
   <div class="warn" id="w_warn"></div>
-  <div class="ft">ТУКАЙФ 20—26 · v46</div>
+  <div class="ft">ТУКАЙФ 20—26 · v47</div>
 
   <div class="ov" id="ov">
     <div class="ov-p">
@@ -378,32 +378,22 @@ textarea{display:none}
     if(before!==after)setText(after);
   }
 
-  function getVisualLines(){
-    var el=$('#t_text');
-    var elTop=el.getBoundingClientRect().top;
-    var lineH=parseFloat(getComputedStyle(el).lineHeight)||32;
-    var threshold=lineH*0.4;
-    var walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null,false);
-    var nodes=[];var node;
-    while(node=walker.nextNode())nodes.push(node);
-    if(!nodes.length)return[''];
-    var lines=[];var cur='';var prevY=null;
-    for(var ni=0;ni<nodes.length;ni++){
-      var tn=nodes[ni];
-      for(var i=0;i<tn.length;i++){
-        var ch=tn.textContent[i];
-        if(ch==='\n'){lines.push(cur);cur='';prevY=null;continue;}
-        var rng=document.createRange();
-        rng.setStart(tn,i);rng.setEnd(tn,i+1);
-        var rect=rng.getBoundingClientRect();
-        var y=rect.top-elTop;
-        if(prevY!==null&&y-prevY>threshold){lines.push(cur);cur='';prevY=y;}
-        else if(prevY===null){prevY=y;}
-        cur+=ch;
+  function wrapLines(ctx,text,lsp,maxW){
+    var hard=(text||'').split('\n');
+    var result=[];
+    for(var i=0;i<hard.length;i++){
+      if(!hard[i]){result.push('');continue}
+      if(maxW<=0){result.push(hard[i]);continue}
+      var words=hard[i].split(' ');
+      var line='';
+      for(var j=0;j<words.length;j++){
+        var cand=line?line+' '+words[j]:words[j];
+        if(lnW(ctx,cand,lsp)>maxW&&line){result.push(line);line=words[j];}
+        else{line=cand;}
       }
+      result.push(line);
     }
-    lines.push(cur);
-    return lines;
+    return result;
   }
 
   function lnW(ctx,ln,ls){
@@ -425,9 +415,10 @@ textarea{display:none}
     }
   }
 
-  function measBlk(ctx,lines,px,wt,lh,ls,ff){
+  function measBlk(ctx,text,px,wt,lh,ls,ff,maxW){
     ctx.font=wt+' '+px+'px '+ff;
     var lsp=ls*px/100, lhp=Math.round(px*lh/100);
+    var lines=wrapLines(ctx,text,lsp,maxW||0);
     var mw=0;
     for(var i=0;i<lines.length;i++){var w=lnW(ctx,lines[i],lsp);if(w>mw)mw=w}
     mw+=px*0.12;
@@ -445,12 +436,17 @@ textarea{display:none}
     var szRaw=parseInt($('#r_size').value);
     var ls=parseFloat($('#r_ls').value);
     var lh=parseFloat($('#r_lh').value);
-    var visualLines=getVisualLines();
+
+    /* Ширина поля ввода → пропорциональный maxW для canvas */
+    var el=$('#t_text');
+    var divW=el.getBoundingClientRect().width;
+    var displayFs=Math.max(16,szRaw/3*(font.sizeMult||1));
 
     /* Предварительный замер в 1x — вычисляем максимально возможный scale */
     var probeCanvas=document.createElement('canvas');
     var probeCtx=probeCanvas.getContext('2d',{alpha:true});
-    var baseM=measBlk(probeCtx,visualLines,szRaw,font.weight,lh,ls,font.family);
+    var baseMaxW=divW*(szRaw/displayFs);
+    var baseM=measBlk(probeCtx,text,szRaw,font.weight,lh,ls,font.family,baseMaxW);
     var basePad=24;
     var baseW=basePad*2+Math.max(baseM.w,10);
     var baseH=basePad*2+baseM.h;
@@ -465,8 +461,9 @@ textarea{display:none}
       var sc=dynScale*(att===0?1:att===1?0.8:0.5);
       var px=szRaw*sc;
       var pad=24*sc;
+      var maxW=divW*(px/displayFs);
 
-      var m=measBlk(probeCtx,visualLines,px,font.weight,lh,ls,font.family);
+      var m=measBlk(probeCtx,text,px,font.weight,lh,ls,font.family,maxW);
       var cW=Math.max(m.w,10);
       var outW=Math.max(pad*2+cW,MIN_W);
       var outH=Math.max(pad*2+m.h,MIN_H);
