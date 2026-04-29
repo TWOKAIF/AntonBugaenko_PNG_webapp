@@ -305,7 +305,7 @@ textarea{display:none}
   <button class="btn off" id="dl" type="button">Скачать PNG</button>
 
   <div class="warn" id="w_warn"></div>
-  <div class="ft">ТУКАЙФ 20—26 · v54</div>
+  <div class="ft">ТУКАЙФ 20—26 · v55</div>
 
   <div class="ov" id="ov">
     <div class="ov-p">
@@ -692,29 +692,31 @@ textarea{display:none}
       var pvWrap=$('#pv_wrap');
       releaseCanvas(pv);
       pvWrap.classList.remove('on');
-      var tmp=document.createElement('canvas');
-      var ok=render(tmp);
-      if(!ok){releaseCanvas(tmp);downloading=false;updatePreview();showWarn('Текст слишком большой — уменьши размер или сократи текст.');return}
-      tmp.toBlob(function(blob){
-        releaseCanvas(tmp);
-        downloading=false;
-        updatePreview();
-        if(!blob){showWarn('Ошибка PNG.');return}
-        if(isIOS()){
-          try{
-            var file=new File([blob],'text.png',{type:'image/png'});
-            if(navigator.canShare&&navigator.canShare({files:[file]})){
-              navigator.share({files:[file]}).catch(function(e){if(e.name!=='AbortError')showWarn('Ошибка.')});
-              return;
-            }
-          }catch(e){}
-        }
-        var u=URL.createObjectURL(blob);
-        var a=document.createElement('a');
-        a.href=u;a.download='text.png';
-        document.body.appendChild(a);a.click();a.remove();
-        setTimeout(function(){URL.revokeObjectURL(u)},1500);
-      },'image/png');
+      setTimeout(function(){
+        var tmp=document.createElement('canvas');
+        var ok=render(tmp);
+        if(!ok){releaseCanvas(tmp);downloading=false;updatePreview();showWarn('Текст слишком большой — уменьши размер или сократи текст.');return}
+        tmp.toBlob(function(blob){
+          releaseCanvas(tmp);
+          downloading=false;
+          updatePreview();
+          if(!blob){showWarn('Ошибка PNG.');return}
+          if(isIOS()){
+            try{
+              var file=new File([blob],'text.png',{type:'image/png'});
+              if(navigator.canShare&&navigator.canShare({files:[file]})){
+                navigator.share({files:[file]}).catch(function(e){if(e.name!=='AbortError')showWarn('Ошибка.')});
+                return;
+              }
+            }catch(e){}
+          }
+          var u=URL.createObjectURL(blob);
+          var a=document.createElement('a');
+          a.href=u;a.download='text.png';
+          document.body.appendChild(a);a.click();a.remove();
+          setTimeout(function(){URL.revokeObjectURL(u)},1500);
+        },'image/png');
+      },300);
     };
     if(document.fonts&&document.fonts.ready)document.fonts.ready.then(go);
     else setTimeout(go,300);
