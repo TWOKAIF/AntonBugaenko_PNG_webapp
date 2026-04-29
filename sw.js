@@ -1,4 +1,4 @@
-const CACHE='bugaenko-png-v48';
+const CACHE='bugaenko-png-v49';
 const ASSETS=[
   './fonts/Benzin Medium.ttf',
   './fonts/Benzin-bold.ttf',
