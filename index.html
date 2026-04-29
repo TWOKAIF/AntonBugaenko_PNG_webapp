@@ -194,16 +194,6 @@ textarea{display:none}
 .ib-b{flex-shrink:0;padding:8px 14px;background:#fff;color:#000;border:none;border-radius:8px;font:600 11px/1 var(--ui);cursor:pointer}
 .ib-x{flex-shrink:0;width:24px;height:24px;background:none;border:none;font-size:16px;color:var(--muted);cursor:pointer}
 /* Лайтбокс для сохранения PNG */
-.lb{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.92);display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;
-  -webkit-user-select:none;user-select:none;}
-.lb.on{display:flex}
-.lb img{max-width:100%;max-height:60vh;border-radius:10px;
-  background-image:repeating-conic-gradient(#555 0% 25%,#333 0% 50%);
-  background-size:20px 20px;
-  -webkit-touch-callout:default;touch-action:none;}
-.lb-hint{font:500 13px/1.4 var(--ui);color:rgba(255,255,255,.6);text-align:center;pointer-events:none}
-.lb-close{flex:1;padding:12px;background:transparent;border:1px solid rgba(255,255,255,.2);border-radius:10px;color:#fff;font:600 13px var(--ui);cursor:pointer}
-.lb-share{flex:1;padding:12px;background:#fff;border:none;border-radius:10px;color:#000;font:600 13px var(--ui);cursor:pointer}
 
 .ios-hint{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;font:500 11px/1.4 var(--ui);color:var(--fg);display:none}
 .ios-hint.on{display:block}
@@ -302,16 +292,7 @@ textarea{display:none}
   <button class="btn btn-reset" id="btn_reset" type="button">Сбросить всё</button>
 
   <div class="warn" id="w_warn"></div>
-  <div class="ft">ТУКАЙФ 20—26 · v45</div>
-
-  <div class="lb" id="lb">
-    <img id="lb_img" src="" alt="PNG">
-    <div class="lb-hint">Нажми «Поделиться» → выбери Instagram или «Сохранить в Файлы»</div>
-    <div style="display:flex;gap:10px;width:100%;max-width:360px">
-      <button class="lb-share" id="lb_share" type="button">Поделиться</button>
-      <button class="lb-close" id="lb_x" type="button">Закрыть</button>
-    </div>
-  </div>
+  <div class="ft">ТУКАЙФ 20—26 · v46</div>
 
   <div class="ov" id="ov">
     <div class="ov-p">
@@ -663,9 +644,18 @@ textarea{display:none}
     showWarn('');
 
     if(tgWebApp()){
-      if(sendToBot()){
-        try{tgWebApp().close()}catch(e){}
-      }
+      if(sendToBot()){try{tgWebApp().close()}catch(e){}}
+      return;
+    }
+
+    if(isIOS()&&isTG()){
+      $('#ov_n').innerHTML='Открой в <b>Safari</b> для сохранения.';
+      $('#ov').classList.add('on');
+      $('#ov_x').onclick=function(){$('#ov').classList.remove('on')};
+      $('#ov_c').onclick=function(){
+        try{navigator.clipboard.writeText(location.href);$('#ov_n').innerHTML='Скопировано. Вставь в Safari.'}
+        catch(e){window.prompt('Скопируй:',location.href)}
+      };
       return;
     }
 
@@ -676,19 +666,20 @@ textarea{display:none}
       tmp.toBlob(function(blob){
         releaseCanvas(tmp);
         if(!blob){showWarn('Ошибка PNG.');return}
-        var u2=URL.createObjectURL(blob);
         if(isIOS()){
-          var img=$('#lb_img');
-          if(img._objUrl){URL.revokeObjectURL(img._objUrl)}
-          img._objUrl=u2;
-          img.src=u2;
-          $('#lb').classList.add('on');
-        } else {
-          var a2=document.createElement('a');
-          a2.href=u2;a2.download='text.png';
-          document.body.appendChild(a2);a2.click();a2.remove();
-          setTimeout(function(){URL.revokeObjectURL(u2)},1500);
+          try{
+            var file=new File([blob],'text.png',{type:'image/png'});
+            if(navigator.canShare&&navigator.canShare({files:[file]})){
+              navigator.share({files:[file]}).catch(function(e){if(e.name!=='AbortError')showWarn('Ошибка.')});
+              return;
+            }
+          }catch(e){}
         }
+        var u=URL.createObjectURL(blob);
+        var a=document.createElement('a');
+        a.href=u;a.download='text.png';
+        document.body.appendChild(a);a.click();a.remove();
+        setTimeout(function(){URL.revokeObjectURL(u)},1500);
       },'image/png');
     };
     if(document.fonts&&document.fonts.ready)document.fonts.ready.then(go);
@@ -746,23 +737,6 @@ textarea{display:none}
     $(s).addEventListener('change',update);
   });
   $('#dl').addEventListener('click',download);
-  function closeLb(){
-    var img=$('#lb_img');
-    if(img._objUrl){URL.revokeObjectURL(img._objUrl);img._objUrl=null}
-    img.src='';
-    $('#lb').classList.remove('on');
-  }
-  $('#lb_x').addEventListener('click',closeLb);
-  $('#lb_share').addEventListener('click',function(){
-    var img=$('#lb_img');
-    if(!img._objUrl)return;
-    fetch(img._objUrl).then(function(r){return r.blob()}).then(function(blob){
-      var file=new File([blob],'text.png',{type:'image/png'});
-      if(navigator.canShare&&navigator.canShare({files:[file]})){
-        navigator.share({files:[file]}).catch(function(e){if(e.name!=='AbortError')showWarn('Ошибка.')});
-      }
-    });
-  });
 
   $('#btn_reset').addEventListener('click',function(){
     setText('');
