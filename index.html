@@ -305,7 +305,7 @@ textarea{display:none}
   <button class="btn off" id="dl" type="button">Скачать PNG</button>
 
   <div class="warn" id="w_warn"></div>
-  <div class="ft">ТУКАЙФ 20—26 · v1</div>
+  <div class="ft">ТУКАЙФ 20—26 · v2</div>
 
   <div class="ov" id="ov">
     <div class="ov-p">
@@ -342,7 +342,8 @@ textarea{display:none}
     }catch(e){}
   }
 
-  $('#dl').textContent=inTelegram?'Отправить':'Скачать PNG';
+  var iosCopy=isIOS()&&!inTelegram&&window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write;
+  $('#dl').textContent=inTelegram?'Отправить':iosCopy?'Скопировать PNG':'Скачать PNG';
 
   var FONTS={
     BenzinMedium:{family:"'BenzinMedium',sans-serif",weight:500,label:'Benzin Medium',sizeMult:1},
@@ -367,6 +368,16 @@ textarea{display:none}
   function isTG(){return/Telegram/i.test(navigator.userAgent)}
   function isStandalone(){return window.matchMedia('(display-mode:standalone)').matches||navigator.standalone===true}
   function showWarn(m){var w=$('#w_warn');if(!m){w.style.display='none';w.textContent='';return}w.style.display='block';w.textContent=m}
+  function iosFallbackShare(blob){
+    try{
+      var file=new File([blob],'text.png',{type:'image/png'});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){
+        navigator.share({files:[file]}).catch(function(e){if(e.name!=='AbortError')showWarn('Ошибка.')});
+        return;
+      }
+    }catch(e){}
+    showWarn('Ошибка сохранения.');
+  }
   function autoH(el){el.style.height='1px';el.style.height=el.scrollHeight+'px'}
 
   function autoCap(text){
@@ -705,15 +716,13 @@ textarea{display:none}
           downloading=false;
           updatePreview();
           if(!blob){showWarn('Ошибка PNG.');return}
-          if(isIOS()){
-            try{
-              var file=new File([blob],'text.png',{type:'image/png'});
-              if(navigator.canShare&&navigator.canShare({files:[file]})){
-                navigator.share({files:[file]}).catch(function(e){if(e.name!=='AbortError')showWarn('Ошибка.')});
-                return;
-              }
-            }catch(e){}
+          if(isIOS()&&window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){
+            navigator.clipboard.write([new ClipboardItem({'image/png':blob})])
+              .then(function(){showWarn('Скопировано — вставь в сторис длинным тапом');})
+              .catch(function(){iosFallbackShare(blob);});
+            return;
           }
+          if(isIOS()){iosFallbackShare(blob);return;}
           var u=URL.createObjectURL(blob);
           var a=document.createElement('a');
           a.href=u;a.download='text.png';
