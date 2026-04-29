@@ -230,7 +230,7 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
   <!-- Поле ввода -->
   <div class="card card-dark">
     <div class="lbl" id="font_lbl">Benzin Medium</div>
-    <textarea id="t_text" spellcheck="false" autocapitalize="off" autocorrect="off" placeholder="Введи текст" rows="3"></textarea>
+    <textarea id="t_text" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" data-gramm="false" placeholder="Введи текст" rows="3"></textarea>
   </div>
 
   <!-- Превью PNG -->
@@ -701,6 +701,11 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
   });
 
   $('#t_text').addEventListener('input',function(){mutateTextareaCase()});
+
+  /* iOS Telegram WebView игнорирует autocorrect="off" — блокируем автозамену */
+  $('#t_text').addEventListener('beforeinput',function(e){
+    if(e.inputType==='insertReplacementText')e.preventDefault();
+  });
   $('#dl').addEventListener('click',download);
 
   $('#btn_reset').addEventListener('click',function(){
