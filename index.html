@@ -305,7 +305,7 @@ textarea{display:none}
   <button class="btn off" id="dl" type="button">Скачать PNG</button>
 
   <div class="warn" id="w_warn"></div>
-  <div class="ft">ТУКАЙФ 20—26 · v55</div>
+  <div class="ft">ТУКАЙФ 20—26 · v56</div>
 
   <div class="ov" id="ov">
     <div class="ov-p">
@@ -438,9 +438,11 @@ textarea{display:none}
     return{w:mw,h:lines.length*lhp,lines:lines,lsp:lsp,lhp:lhp};
   }
 
-  function render(canvas){
+  function render(canvas,limPx,limDim){
     var text=getText();
     if(!text.trim()){canvas.width=0;canvas.height=0;return false}
+    var mxPx=limPx||MAX_PX;
+    var mxDim=limDim||MAX_DIM;
 
     var fontKey=state.font;
     var font=FONTS[fontKey];
@@ -463,9 +465,9 @@ textarea{display:none}
     var basePad=24;
     var baseW=basePad*2+Math.max(baseM.w,10);
     var baseH=basePad*2+baseM.h;
-    var scByW=MAX_DIM/baseW;
-    var scByH=MAX_DIM/baseH;
-    var scByArea=Math.sqrt(MAX_PX/(baseW*baseH));
+    var scByW=mxDim/baseW;
+    var scByH=mxDim/baseH;
+    var scByArea=Math.sqrt(mxPx/(baseW*baseH));
     var dynScale=Math.min(SCALE,scByW,scByH,scByArea);
     if(dynScale<0.3)dynScale=0.3;
 
@@ -481,7 +483,7 @@ textarea{display:none}
       var outW=Math.max(pad*2+cW,MIN_W);
       var outH=Math.max(pad*2+m.h,MIN_H);
 
-      if(outW>MAX_DIM||outH>MAX_DIM||outW*outH>MAX_PX)continue;
+      if(outW>mxDim||outH>mxDim||outW*outH>mxPx)continue;
 
       canvas.width=Math.round(outW);canvas.height=Math.round(outH);
       var ctx=canvas.getContext('2d',{alpha:true});
@@ -514,7 +516,9 @@ textarea{display:none}
       var pv=$('#pv_canvas');
       var wrap=$('#pv_wrap');
       if(!getText().trim()){wrap.classList.remove('on');return}
-      var ok=render(pv);
+      var pvPx=isIOS()?360000:MAX_PX;
+      var pvDim=isIOS()?600:MAX_DIM;
+      var ok=render(pv,pvPx,pvDim);
       if(ok){wrap.classList.add('on');}
       else{wrap.classList.remove('on');}
     },120);
