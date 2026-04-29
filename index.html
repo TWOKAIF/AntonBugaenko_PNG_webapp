@@ -188,6 +188,12 @@ textarea{display:none}
 .warn{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;font:500 12px/1.35 var(--ui);color:var(--fg);display:none}
 .ft{font-size:11px;color:var(--muted);opacity:.45;text-align:center;margin-top:auto;padding-top:8px;letter-spacing:-.16px}
 
+.pv-wrap{background:#000;border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);overflow:hidden;display:none;align-items:center;justify-content:center;min-height:80px;padding:12px;}
+.pv-wrap.on{display:flex}
+.pv-wrap canvas{max-width:100%;max-height:240px;border-radius:6px;
+  background-image:repeating-conic-gradient(#2a2a2a 0% 25%,#1a1a1a 0% 50%);
+  background-size:16px 16px;}
+
 .ib{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;display:none;align-items:center;gap:10px}
 .ib.on{display:flex}
 .ib-t{flex:1;font:500 12px/1.35 var(--ui);color:var(--fg)}
@@ -239,6 +245,9 @@ textarea{display:none}
   </div>
 
   <!-- Превью PNG -->
+  <div class="pv-wrap" id="pv_wrap">
+    <canvas id="pv_canvas"></canvas>
+  </div>
 
   <!-- Шрифт + размер -->
   <div class="card">
@@ -292,7 +301,7 @@ textarea{display:none}
   <button class="btn btn-reset" id="btn_reset" type="button">Сбросить всё</button>
 
   <div class="warn" id="w_warn"></div>
-  <div class="ft">ТУКАЙФ 20—26 · v47</div>
+  <div class="ft">ТУКАЙФ 20—26 · v48</div>
 
   <div class="ov" id="ov">
     <div class="ov-p">
@@ -491,7 +500,17 @@ textarea{display:none}
     return ok;
   }
 
+  var pvTimer=null;
   function updatePreview(){
+    clearTimeout(pvTimer);
+    pvTimer=setTimeout(function(){
+      var pv=$('#pv_canvas');
+      var wrap=$('#pv_wrap');
+      if(!getText().trim()){wrap.classList.remove('on');return}
+      var ok=render(pv);
+      if(ok){wrap.classList.add('on');}
+      else{wrap.classList.remove('on');}
+    },120);
   }
 
   function applyLive(){
@@ -562,6 +581,7 @@ textarea{display:none}
   function update(){
     $('#dl').classList.toggle('off',!getText().trim());
     applyLive();
+    updatePreview();
     saveDraft();
   }
 
