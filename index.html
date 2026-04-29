@@ -66,7 +66,10 @@ body{font-family:var(--ui);background:var(--bg);color:var(--fg);-webkit-font-smo
 .logo-n{font-size:14px;font-weight:800;letter-spacing:-2px;line-height:1}
 
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:12px;transition:background .3s var(--ease-spring)}
-.card-dark{background:#000;border-color:rgba(255,255,255,.06)}
+.card-dark{background:#000;border-color:rgba(255,255,255,.06);position:relative}
+#btn_clear{position:absolute;top:10px;right:10px;width:28px;height:28px;border:none;background:transparent;color:var(--muted);cursor:pointer;display:none;align-items:center;justify-content:center;padding:0;border-radius:6px;transition:color .2s}
+#btn_clear.on{display:flex}
+#btn_clear:active{color:var(--red)}
 
 .lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)}
 .card-dark .lbl{color:rgba(255,255,255,.35)}
@@ -183,7 +186,6 @@ textarea{display:none}
 }
 .btn:active{transform:scale(.97)}
 .btn.off{opacity:.2;pointer-events:none}
-.btn-reset{background:transparent;color:var(--red);border:1px solid var(--red);font-size:12px;padding:12px}
 
 .warn{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;font:500 12px/1.35 var(--ui);color:var(--fg);display:none}
 .ft{font-size:11px;color:var(--muted);opacity:.45;text-align:center;margin-top:auto;padding-top:8px;letter-spacing:-.16px}
@@ -240,6 +242,9 @@ textarea{display:none}
   <!-- Поле ввода -->
   <div class="card card-dark">
     <div class="lbl" id="font_lbl">Benzin Medium</div>
+    <button id="btn_clear" type="button" title="Сбросить всё">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+    </button>
     <div id="t_text" contenteditable="true" autocorrect="off" autocomplete="off" autocapitalize="off" spellcheck="false" data-gramm="false" data-placeholder="Введи текст" inputmode="text" role="textbox" aria-multiline="true"></div>
     <textarea id="t_text_hidden" style="display:none" aria-hidden="true"></textarea>
   </div>
@@ -298,10 +303,9 @@ textarea{display:none}
   </div>
 
   <button class="btn off" id="dl" type="button">Скачать PNG</button>
-  <button class="btn btn-reset" id="btn_reset" type="button">Сбросить всё</button>
 
   <div class="warn" id="w_warn"></div>
-  <div class="ft">ТУКАЙФ 20—26 · v49</div>
+  <div class="ft">ТУКАЙФ 20—26 · v50</div>
 
   <div class="ov" id="ov">
     <div class="ov-p">
@@ -579,7 +583,9 @@ textarea{display:none}
   }
 
   function update(){
-    $('#dl').classList.toggle('off',!getText().trim());
+    var hasText=!!getText().trim();
+    $('#dl').classList.toggle('off',!hasText);
+    $('#btn_clear').classList.toggle('on',hasText);
     applyLive();
     updatePreview();
     saveDraft();
@@ -755,7 +761,7 @@ textarea{display:none}
   });
   $('#dl').addEventListener('click',download);
 
-  $('#btn_reset').addEventListener('click',function(){
+  $('#btn_clear').addEventListener('click',function(){
     setText('');
     $('#r_size').value='80';
     $('#r_ls').value='0';
