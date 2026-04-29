@@ -62,35 +62,22 @@ body{font-family:var(--ui);background:var(--bg);color:var(--fg);-webkit-font-smo
 .lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)}
 .card-dark .lbl{color:rgba(255,255,255,.35)}
 
-textarea{
-  width:100%;border:none;outline:none;resize:none;
+textarea{display:none}
+#t_text{
+  width:100%;border:none;outline:none;
   padding:8px 0 0;background:transparent;
-  caret-color:currentColor;
+  caret-color:#fff;
   font-size:26px;line-height:1.25;
   min-height:96px;
   color:#fff;
+  word-break:break-word;white-space:pre-wrap;
   transition:color .25s var(--ease-spring),font-family .2s;
+  -webkit-user-modify:read-write-plaintext-only;
+  font-feature-settings:"liga" 0,"calt" 0,"dlig" 0,"hlig" 0;
 }
-textarea::placeholder{color:rgba(255,255,255,.2)}
+#t_text:empty::before{content:attr(data-placeholder);color:rgba(255,255,255,.2);pointer-events:none}
 
 /* Превью PNG */
-.preview-wrap{
-  border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);
-  background:
-    linear-gradient(45deg,#d8d8dc 25%,transparent 25%),
-    linear-gradient(-45deg,#d8d8dc 25%,transparent 25%),
-    linear-gradient(45deg,transparent 75%,#d8d8dc 75%),
-    linear-gradient(-45deg,transparent 75%,#d8d8dc 75%);
-  background-size:16px 16px;
-  background-position:0 0,0 8px,8px -8px,-8px 0px;
-  background-color:#ebebef;
-  position:relative;
-  min-height:160px;
-  display:flex;align-items:center;justify-content:center;
-  padding:16px;
-}
-.preview-canvas{max-width:100%;max-height:340px;display:block;animation:fadeIn .3s var(--ease-spring)}
-.preview-empty{font:500 12px var(--ui);color:var(--muted);letter-spacing:-.1px}
 
 /* Селекторы */
 .cg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
@@ -187,7 +174,7 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
 }
 .btn:active{transform:scale(.97)}
 .btn.off{opacity:.2;pointer-events:none}
-.btn-reset{background:transparent;color:var(--muted);border:1px solid var(--border);font-size:12px;padding:12px}
+.btn-reset{background:transparent;color:var(--red);border:1px solid var(--red);font-size:12px;padding:12px}
 
 .warn{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;font:500 12px/1.35 var(--ui);color:var(--fg);display:none}
 .ft{font-size:11px;color:var(--muted);opacity:.45;text-align:center;margin-top:auto;padding-top:8px;letter-spacing:-.16px}
@@ -197,6 +184,22 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
 .ib-t{flex:1;font:500 12px/1.35 var(--ui);color:var(--fg)}
 .ib-b{flex-shrink:0;padding:8px 14px;background:#fff;color:#000;border:none;border-radius:8px;font:600 11px/1 var(--ui);cursor:pointer}
 .ib-x{flex-shrink:0;width:24px;height:24px;background:none;border:none;font-size:16px;color:var(--muted);cursor:pointer}
+/* Лайтбокс для сохранения PNG */
+.lb{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.92);display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;
+  -webkit-user-select:none;user-select:none;}
+.lb.on{display:flex}
+.lb img{max-width:100%;max-height:60vh;border-radius:10px;
+  background-image:repeating-conic-gradient(#555 0% 25%,#333 0% 50%);
+  background-size:20px 20px;
+  -webkit-touch-callout:default;touch-action:none;}
+.lb-hint{font:500 13px/1.4 var(--ui);color:rgba(255,255,255,.6);text-align:center;pointer-events:none}
+.lb-close{flex:1;padding:12px;background:transparent;border:1px solid rgba(255,255,255,.2);border-radius:10px;color:#fff;font:600 13px var(--ui);cursor:pointer}
+.lb-share{flex:1;padding:12px;background:#fff;border:none;border-radius:10px;color:#000;font:600 13px var(--ui);cursor:pointer}
+
+.upd{background:var(--card);border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);padding:12px 16px;display:none;align-items:center;gap:10px}
+.upd.on{display:flex}
+.upd-t{flex:1;font:500 12px/1.35 var(--ui);color:var(--fg)}
+.upd-b{flex-shrink:0;padding:8px 14px;background:var(--red);color:#fff;border:none;border-radius:8px;font:600 11px/1 var(--ui);cursor:pointer}
 .ios-hint{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;font:500 11px/1.4 var(--ui);color:var(--fg);display:none}
 .ios-hint.on{display:block}
 
@@ -226,18 +229,19 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     <button class="ib-x" id="ib_x" type="button">&times;</button>
   </div>
   <div class="ios-hint" id="ios_h">Нажми <b>«Поделиться»</b> → <b>«На экран Домой»</b></div>
+  <div class="upd" id="upd_bar">
+    <span class="upd-t">Доступно обновление</span>
+    <button class="upd-b" id="upd_btn" type="button">Обновить</button>
+  </div>
 
   <!-- Поле ввода -->
   <div class="card card-dark">
     <div class="lbl" id="font_lbl">Benzin Medium</div>
-    <textarea id="t_text" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" data-gramm="false" placeholder="Введи текст" rows="3"></textarea>
+    <div id="t_text" contenteditable="true" autocorrect="off" autocomplete="off" autocapitalize="off" spellcheck="false" data-gramm="false" data-placeholder="Введи текст" inputmode="text" role="textbox" aria-multiline="true"></div>
+    <textarea id="t_text_hidden" style="display:none" aria-hidden="true"></textarea>
   </div>
 
   <!-- Превью PNG -->
-  <div class="preview-wrap" id="preview_wrap">
-    <canvas class="preview-canvas" id="preview_canvas" style="display:none"></canvas>
-    <div class="preview-empty" id="preview_empty">Превью появится после ввода текста</div>
-  </div>
 
   <!-- Шрифт + размер -->
   <div class="card">
@@ -291,7 +295,16 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
   <button class="btn btn-reset" id="btn_reset" type="button">Сбросить всё</button>
 
   <div class="warn" id="w_warn"></div>
-  <div class="ft">ТУКАЙФ 20—26 · v14</div>
+  <div class="ft">ТУКАЙФ 20—26 · v39</div>
+
+  <div class="lb" id="lb">
+    <img id="lb_img" src="" alt="PNG">
+    <div class="lb-hint">Нажми «Поделиться» → выбери Instagram или «Сохранить в Файлы»</div>
+    <div style="display:flex;gap:10px;width:100%;max-width:360px">
+      <button class="lb-share" id="lb_share" type="button">Поделиться</button>
+      <button class="lb-close" id="lb_x" type="button">Закрыть</button>
+    </div>
+  </div>
 
   <div class="ov" id="ov">
     <div class="ov-p">
@@ -309,6 +322,16 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
   var $=function(s){return document.querySelector(s)};
   var $$=function(s){return Array.from(document.querySelectorAll(s))};
 
+  var inTelegram=(function(){
+    var w=window.Telegram&&window.Telegram.WebApp;
+    if(!w)return false;
+    var p=w.platform||'';
+    if(p&&p!=='unknown')return true;
+    if(w.initData||w.initDataUnsafe&&Object.keys(w.initDataUnsafe).length)return true;
+    if(/Telegram/i.test(navigator.userAgent))return true;
+    return false;
+  })();
+
   if(window.Telegram&&window.Telegram.WebApp){
     try{
       window.Telegram.WebApp.ready();
@@ -318,18 +341,24 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     }catch(e){}
   }
 
+  $('#dl').textContent=inTelegram?'Отправить':'Скачать PNG';
+
   var FONTS={
-    BenzinMedium:{family:"'BenzinMedium',sans-serif",weight:500,label:'Benzin Medium'},
-    BenzinBold:{family:"'BenzinBold',sans-serif",weight:700,label:'Benzin Bold'},
-    Caravan:{family:"'Caravan',cursive",weight:400,label:'Caravan'}
+    BenzinMedium:{family:"'BenzinMedium',sans-serif",weight:500,label:'Benzin Medium',sizeMult:1},
+    BenzinBold:{family:"'BenzinBold',sans-serif",weight:700,label:'Benzin Bold',sizeMult:1},
+    Caravan:{family:"'Caravan',cursive",weight:400,label:'Caravan',sizeMult:2.8}
   };
 
   var state={color:'#ffffff',font:'BenzinMedium',align:'left',caseMode:'auto'};
 
   var SCALE=5;
   var MIN_W=400, MIN_H=400;
-  var MAX_PX=16777216;
-  var MAX_DIM=4096;
+  var MAX_PX=isIOS()?2097152:16777216;
+  var MAX_DIM=isIOS()?2048:4096;
+
+  function getText(){var el=$('#t_text');return(el.innerText||'').replace(/\n$/,'');}
+  function setText(v){var el=$('#t_text');el.innerText=v;placeCursorAtEnd(el);}
+  function placeCursorAtEnd(el){try{var r=document.createRange();var s=window.getSelection();r.selectNodeContents(el);r.collapse(false);s.removeAllRanges();s.addRange(r);}catch(e){}}
 
   function releaseCanvas(c){c.width=1;c.height=1;var x=c.getContext('2d');x&&x.clearRect(0,0,1,1)}
   function isIOS(){return/iPhone|iPad|iPod/i.test(navigator.userAgent)}
@@ -356,28 +385,47 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     return autoCap(text);
   }
   function mutateTextareaCase(){
-    var el=$('#t_text');
-    var pos=el.selectionStart;
-    var before=el.value;
+    var before=getText();
     var after=applyCase(before);
-    if(before!==after){el.value=after;try{el.selectionStart=el.selectionEnd=pos}catch(e){}}
+    if(before!==after)setText(after);
+  }
+
+  function getVisualLines(){
+    var el=$('#t_text');
+    var walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null,false);
+    var nodes=[];var node;
+    while(node=walker.nextNode())nodes.push(node);
+    if(!nodes.length)return[''];
+    var lines=[];var cur='';var prevY=null;
+    for(var ni=0;ni<nodes.length;ni++){
+      var tn=nodes[ni];
+      for(var i=0;i<tn.length;i++){
+        var ch=tn.textContent[i];
+        if(ch==='\n'){lines.push(cur);cur='';prevY=null;continue;}
+        var rng=document.createRange();
+        rng.setStart(tn,i);rng.setEnd(tn,i+1);
+        var rect=rng.getBoundingClientRect();
+        var y=Math.round(rect.top);
+        if(prevY!==null&&y!==prevY){lines.push(cur);cur='';}
+        cur+=ch;prevY=y;
+      }
+    }
+    lines.push(cur);
+    return lines;
   }
 
   function lnW(ctx,ln,ls){
     if(!ln)return 0;
     var chars=Array.from(ln);
-    var m=ctx.measureText(ln);
-    var base=m.width;
-    if(m.actualBoundingBoxLeft!==undefined&&m.actualBoundingBoxRight!==undefined){
-      base=Math.max(base,m.actualBoundingBoxLeft+m.actualBoundingBoxRight);
-    }
-    return base+(chars.length>1?(chars.length-1)*ls:0);
+    var base=0;
+    for(var i=0;i<chars.length;i++)base+=ctx.measureText(chars[i]).width;
+    var total=base+(chars.length>1?(chars.length-1)*ls:0);
+    return Math.max(total,0);
   }
 
   function drawLn(ctx,ln,x,y,ls){
     if(!ln)return;
     var chars=Array.from(ln);
-    if(Math.abs(ls)<.5){ctx.fillText(ln,x,y);return}
     var cx=x;
     for(var i=0;i<chars.length;i++){
       ctx.fillText(chars[i],cx,y);
@@ -385,10 +433,9 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     }
   }
 
-  function measBlk(ctx,txt,px,wt,lh,ls,ff){
+  function measBlk(ctx,lines,px,wt,lh,ls,ff){
     ctx.font=wt+' '+px+'px '+ff;
     var lsp=ls*px/100, lhp=Math.round(px*lh/100);
-    var lines=(txt||'').split('\n');
     var mw=0;
     for(var i=0;i<lines.length;i++){var w=lnW(ctx,lines[i],lsp);if(w>mw)mw=w}
     mw+=px*0.12;
@@ -396,7 +443,7 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
   }
 
   function render(canvas){
-    var text=$('#t_text').value;
+    var text=getText();
     if(!text.trim()){canvas.width=0;canvas.height=0;return false}
 
     var fontKey=state.font;
@@ -406,11 +453,12 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     var szRaw=parseInt($('#r_size').value);
     var ls=parseFloat($('#r_ls').value);
     var lh=parseFloat($('#r_lh').value);
+    var visualLines=getVisualLines();
 
     /* Предварительный замер в 1x — вычисляем максимально возможный scale */
     var probeCanvas=document.createElement('canvas');
     var probeCtx=probeCanvas.getContext('2d',{alpha:true});
-    var baseM=measBlk(probeCtx,text,szRaw,font.weight,lh,ls,font.family);
+    var baseM=measBlk(probeCtx,visualLines,szRaw,font.weight,lh,ls,font.family);
     var basePad=24;
     var baseW=basePad*2+Math.max(baseM.w,10);
     var baseH=basePad*2+baseM.h;
@@ -426,7 +474,7 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
       var px=szRaw*sc;
       var pad=24*sc;
 
-      var m=measBlk(probeCtx,text,px,font.weight,lh,ls,font.family);
+      var m=measBlk(probeCtx,visualLines,px,font.weight,lh,ls,font.family);
       var cW=Math.max(m.w,10);
       var outW=Math.max(pad*2+cW,MIN_W);
       var outH=Math.max(pad*2+m.h,MIN_H);
@@ -455,25 +503,6 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
   }
 
   function updatePreview(){
-    var pc=$('#preview_canvas');
-    var pe=$('#preview_empty');
-    if(!$('#t_text').value.trim()){
-      pc.style.display='none';
-      pe.style.display='block';
-      return;
-    }
-    var go=function(){
-      var ok=render(pc);
-      if(ok){
-        pc.style.display='block';
-        pe.style.display='none';
-      }else{
-        pc.style.display='none';
-        pe.style.display='block';
-      }
-    };
-    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(go);
-    else go();
   }
 
   function applyLive(){
@@ -486,9 +515,10 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     t.style.fontWeight=font.weight;
     t.style.textAlign=state.align;
     t.style.color=state.color;
+    t.style.caretColor='#fff';
     t.style.letterSpacing=$('#r_ls').value/100+'em';
     t.style.lineHeight=$('#r_lh').value/100;
-    t.style.fontSize=Math.max(16,$('#r_size').value/3)+'px';
+    t.style.fontSize=Math.max(16,$('#r_size').value/3*(font.sizeMult||1))+'px';
 
     $('#v_ls').textContent=$('#r_ls').value+'%';
     $('#v_lh').textContent=$('#r_lh').value+'%';
@@ -499,7 +529,7 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
   function saveDraft(){
     try{
       localStorage.setItem(STORAGE_KEY,JSON.stringify({
-        text:$('#t_text').value,
+        text:getText(),
         font:state.font,
         color:state.color,
         align:state.align,
@@ -517,7 +547,7 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
       if(!raw)return false;
       var d=JSON.parse(raw);
       if(!d||typeof d!=='object')return false;
-      if(typeof d.text==='string')$('#t_text').value=d.text;
+      if(typeof d.text==='string')setText(d.text);
       if(d.font&&FONTS[d.font]){state.font=d.font;$('#s_font').value=d.font}
       if(d.color){
         state.color=d.color;
@@ -540,14 +570,10 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     }catch(e){return false}
   }
 
-  var previewTimer=null;
   function update(){
-    autoH($('#t_text'));
-    $('#dl').classList.toggle('off',!$('#t_text').value.trim());
+    $('#dl').classList.toggle('off',!getText().trim());
     applyLive();
     saveDraft();
-    clearTimeout(previewTimer);
-    previewTimer=setTimeout(updatePreview,120);
   }
 
   function tgOv(){
@@ -584,7 +610,7 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     var tg=tgWebApp();
     if(!tg)return false;
     var payload={
-      text:$('#t_text').value,
+      text:getText(),
       font:state.font,
       color:state.color,
       align:state.align,
@@ -599,7 +625,7 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
   function buildSafariURL(){
     var base=location.origin+location.pathname;
     var p=new URLSearchParams();
-    p.set('text',$('#t_text').value);
+    p.set('text',getText());
     p.set('font',state.font);
     p.set('color',state.color);
     p.set('align',state.align);
@@ -622,7 +648,7 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
   }
 
   function download(){
-    if(!$('#t_text').value.trim())return;
+    if(!getText().trim())return;
     showWarn('');
 
     if(tgWebApp()){
@@ -635,16 +661,24 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     var go=function(){
       var tmp=document.createElement('canvas');
       var ok=render(tmp);
-      if(!ok){releaseCanvas(tmp);return}
-      var dataURL=tmp.toDataURL('image/png');
-      releaseCanvas(tmp);
-      if(!dataURL||dataURL.length<100){showWarn('Ошибка PNG.');return}
-      var blob=dataURLtoBlob(dataURL);
-      var u2=URL.createObjectURL(blob);
-      var a2=document.createElement('a');
-      a2.href=u2;a2.download='text.png';
-      document.body.appendChild(a2);a2.click();a2.remove();
-      setTimeout(function(){URL.revokeObjectURL(u2)},1500);
+      if(!ok){releaseCanvas(tmp);showWarn('Текст слишком большой — уменьши размер или сократи текст.');return}
+      tmp.toBlob(function(blob){
+        releaseCanvas(tmp);
+        if(!blob){showWarn('Ошибка PNG.');return}
+        var u2=URL.createObjectURL(blob);
+        if(isIOS()){
+          var img=$('#lb_img');
+          if(img._objUrl){URL.revokeObjectURL(img._objUrl)}
+          img._objUrl=u2;
+          img.src=u2;
+          $('#lb').classList.add('on');
+        } else {
+          var a2=document.createElement('a');
+          a2.href=u2;a2.download='text.png';
+          document.body.appendChild(a2);a2.click();a2.remove();
+          setTimeout(function(){URL.revokeObjectURL(u2)},1500);
+        }
+      },'image/png');
     };
     if(document.fonts&&document.fonts.ready)document.fonts.ready.then(go);
     else setTimeout(go,300);
@@ -694,36 +728,33 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
 
   $('#s_font').addEventListener('change',function(){state.font=this.value;update()});
 
-  var inputs='#t_text,#r_size,#r_ls,#r_lh';
-  inputs.split(',').forEach(function(s){
+  $('#t_text').addEventListener('input',function(){mutateTextareaCase();update();});
+  $('#t_text').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();var sel=window.getSelection();if(sel.rangeCount){var r=sel.getRangeAt(0);r.deleteContents();r.insertNode(document.createTextNode('\n'));r.collapse(false);sel.removeAllRanges();sel.addRange(r);update();}}});
+  ['#r_size','#r_ls','#r_lh'].forEach(function(s){
     $(s).addEventListener('input',update);
     $(s).addEventListener('change',update);
   });
-
-  $('#t_text').addEventListener('input',function(){mutateTextareaCase()});
-
-  /* iOS Telegram WebView игнорирует autocorrect="off" — восстанавливаем значение после автозамены */
-  (function(){
-    var ta=$('#t_text');
-    var saved='';
-    var composing=false;
-    ta.addEventListener('compositionstart',function(){composing=true;saved=ta.value;});
-    ta.addEventListener('compositionend',function(){
-      composing=false;
-      var after=ta.value;
-      if(saved&&after!==saved&&after.length<saved.length){
-        var pos=ta.selectionStart;
-        ta.value=saved;
-        try{ta.selectionStart=ta.selectionEnd=Math.min(pos,saved.length);}catch(e){}
-        update();
+  $('#dl').addEventListener('click',download);
+  function closeLb(){
+    var img=$('#lb_img');
+    if(img._objUrl){URL.revokeObjectURL(img._objUrl);img._objUrl=null}
+    img.src='';
+    $('#lb').classList.remove('on');
+  }
+  $('#lb_x').addEventListener('click',closeLb);
+  $('#lb_share').addEventListener('click',function(){
+    var img=$('#lb_img');
+    if(!img._objUrl)return;
+    fetch(img._objUrl).then(function(r){return r.blob()}).then(function(blob){
+      var file=new File([blob],'text.png',{type:'image/png'});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){
+        navigator.share({files:[file]}).catch(function(e){if(e.name!=='AbortError')showWarn('Ошибка.')});
       }
     });
-    ta.addEventListener('keydown',function(){if(!composing)saved=ta.value;});
-  })();
-  $('#dl').addEventListener('click',download);
+  });
 
   $('#btn_reset').addEventListener('click',function(){
-    $('#t_text').value='';
+    setText('');
     $('#r_size').value='80';
     $('#r_ls').value='0';
     $('#r_lh').value='110';
@@ -744,7 +775,7 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
     var q=new URLSearchParams(location.search);
     if(!q.has('text'))return false;
     var txt=q.get('text')||'';
-    $('#t_text').value=txt;
+    setText(txt);
     var f=q.get('font');if(f&&FONTS[f]){state.font=f;$('#s_font').value=f}
     var c=q.get('color');if(c){
       state.color=c;
@@ -795,7 +826,31 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
   });
   $('#ib_x').addEventListener('click',function(){$('#ib').classList.remove('on')});
   if(isIOS()&&isSafari()&&!isStandalone())$('#ios_h').classList.add('on');
-  if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()})});if('caches' in window)caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k)})})}
+
+  /* Service Worker + update banner */
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('./sw.js').then(function(reg){
+      reg.addEventListener('updatefound',function(){
+        var nw=reg.installing;
+        nw.addEventListener('statechange',function(){
+          if(nw.state==='installed'&&navigator.serviceWorker.controller){
+            $('#upd_bar').classList.add('on');
+          }
+        });
+      });
+    });
+    var refreshing=false;
+    navigator.serviceWorker.addEventListener('controllerchange',function(){
+      if(!refreshing){refreshing=true;window.location.reload()}
+    });
+  }
+  $('#upd_btn').addEventListener('click',function(){
+    if(navigator.serviceWorker.controller){
+      navigator.serviceWorker.controller.postMessage({type:'SKIP_WAITING'});
+    } else {
+      window.location.reload();
+    }
+  });
 })();
 </script>
 </body>
