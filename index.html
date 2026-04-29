@@ -702,10 +702,24 @@ textarea::placeholder{color:rgba(255,255,255,.2)}
 
   $('#t_text').addEventListener('input',function(){mutateTextareaCase()});
 
-  /* iOS Telegram WebView игнорирует autocorrect="off" — блокируем автозамену */
-  $('#t_text').addEventListener('beforeinput',function(e){
-    if(e.inputType==='insertReplacementText')e.preventDefault();
-  });
+  /* iOS Telegram WebView игнорирует autocorrect="off" — восстанавливаем значение после автозамены */
+  (function(){
+    var ta=$('#t_text');
+    var saved='';
+    var composing=false;
+    ta.addEventListener('compositionstart',function(){composing=true;saved=ta.value;});
+    ta.addEventListener('compositionend',function(){
+      composing=false;
+      var after=ta.value;
+      if(saved&&after!==saved&&after.length<saved.length){
+        var pos=ta.selectionStart;
+        ta.value=saved;
+        try{ta.selectionStart=ta.selectionEnd=Math.min(pos,saved.length);}catch(e){}
+        update();
+      }
+    });
+    ta.addEventListener('keydown',function(){if(!composing)saved=ta.value;});
+  })();
   $('#dl').addEventListener('click',download);
 
   $('#btn_reset').addEventListener('click',function(){
