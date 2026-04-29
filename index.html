@@ -302,7 +302,7 @@ textarea{display:none}
   <button class="btn btn-reset" id="btn_reset" type="button">Сбросить всё</button>
 
   <div class="warn" id="w_warn"></div>
-  <div class="ft">ТУКАЙФ 20—26 · v42</div>
+  <div class="ft">ТУКАЙФ 20—26 · v43</div>
 
   <div class="lb" id="lb">
     <img id="lb_img" src="" alt="PNG">
@@ -399,6 +399,7 @@ textarea{display:none}
 
   function getVisualLines(){
     var el=$('#t_text');
+    var elTop=el.getBoundingClientRect().top;
     var walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null,false);
     var nodes=[];var node;
     while(node=walker.nextNode())nodes.push(node);
@@ -412,7 +413,7 @@ textarea{display:none}
         var rng=document.createRange();
         rng.setStart(tn,i);rng.setEnd(tn,i+1);
         var rect=rng.getBoundingClientRect();
-        var y=Math.round(rect.top);
+        var y=Math.round(rect.top-elTop);
         if(prevY!==null&&y!==prevY){lines.push(cur);cur='';}
         cur+=ch;prevY=y;
       }
