@@ -305,7 +305,7 @@ textarea{display:none}
   <button class="btn off" id="dl" type="button">Скачать PNG</button>
 
   <div class="warn" id="w_warn"></div>
-  <div class="ft">ТУКАЙФ 20—26 · v53</div>
+  <div class="ft">ТУКАЙФ 20—26 · v54</div>
 
   <div class="ov" id="ov">
     <div class="ov-p">
@@ -505,9 +505,12 @@ textarea{display:none}
   }
 
   var pvTimer=null;
+  var downloading=false;
   function updatePreview(){
     clearTimeout(pvTimer);
+    if(downloading)return;
     pvTimer=setTimeout(function(){
+      if(downloading)return;
       var pv=$('#pv_canvas');
       var wrap=$('#pv_wrap');
       if(!getText().trim()){wrap.classList.remove('on');return}
@@ -683,15 +686,18 @@ textarea{display:none}
     }
 
     var go=function(){
+      downloading=true;
+      clearTimeout(pvTimer);
       var pv=$('#pv_canvas');
       var pvWrap=$('#pv_wrap');
       releaseCanvas(pv);
       pvWrap.classList.remove('on');
       var tmp=document.createElement('canvas');
       var ok=render(tmp);
-      if(!ok){releaseCanvas(tmp);updatePreview();showWarn('Текст слишком большой — уменьши размер или сократи текст.');return}
+      if(!ok){releaseCanvas(tmp);downloading=false;updatePreview();showWarn('Текст слишком большой — уменьши размер или сократи текст.');return}
       tmp.toBlob(function(blob){
         releaseCanvas(tmp);
+        downloading=false;
         updatePreview();
         if(!blob){showWarn('Ошибка PNG.');return}
         if(isIOS()){
